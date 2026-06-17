@@ -54,7 +54,7 @@
         radial-gradient(1px 1px at 95% 70%,  rgba(255,255,255,.30) 0%, transparent 100%);
     }
 
-    /* ─── PREMIUM COUNTDOWN SCREEN (STRICT LIVE LOCK) ─── */
+    /* ─── PREMIUM COUNTDOWN SCREEN ───────────────────── */
     .countdown-screen {
       position: fixed;
       inset: 0;
@@ -121,6 +121,7 @@
       font-weight: 600;
     }
     
+    /* Strict Lock Message Style */
     .lock-notice {
       height: 24px;
       font-size: 13px;
@@ -143,7 +144,7 @@
       75% { transform: translateX(6px); }
     }
 
-    /* Premium Button */
+    /* Premium Neon Glass Button */
     .cd-btn {
       background: rgba(179,143,77,0.05);
       color: var(--text-dim);
@@ -161,23 +162,24 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.3);
       transition: all 0.4s ease;
     }
-    .cd-btn.active-ready {
+    /* Gaining gold light look when unlocked */
+    .cd-btn.unlocked {
       color: var(--gold-light);
       border: 1px solid rgba(243,207,122,0.4);
-      box-shadow: 0 0 20px rgba(179,143,77,0.2);
+      box-shadow: 0 0 20px rgba(179,143,77,0.15);
     }
     .cd-btn::before {
       content: '';
       position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
       transition: 0.6s;
     }
-    .cd-btn.active-ready:hover::before { left: 100%; }
-    .cd-btn.active-ready:hover {
+    .cd-btn.unlocked:hover::before { left: 100%; }
+    .cd-btn.unlocked:hover {
       background: linear-gradient(135deg, var(--gold-deep), var(--gold-light));
       color: var(--bg-core);
       border-color: transparent;
-      box-shadow: 0 0 30px rgba(243,207,122,0.5), 0 4px 15px rgba(243,207,122,0.2);
+      box-shadow: 0 0 30px rgba(243,207,122,0.4), 0 4px 15px rgba(243,207,122,0.2);
       transform: translateY(-2px);
     }
 
@@ -222,6 +224,7 @@
       color: var(--gold-deep); font-weight: 600;
     }
 
+    /* gold rule */
     .gold-rule {
       width: 60px; height: 2px; margin: 22px auto;
       background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
@@ -564,12 +567,12 @@
       color: var(--text-main); line-height: 1.65;
       margin-bottom: 28px; opacity: .9;
     }
-  .modal-btn {
+    .modal-btn {
       background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold-light) 50%, var(--gold-deep) 100%);
       color: var(--bg-core);
       border: none; border-radius: 50px;
       padding: 13px 36px;
-      font-family: 'Poppins', sans-serif;
+      font-family:   'Poppins', sans-serif;
       font-size: 13px; font-weight: 700;
       letter-spacing: 1px; text-transform: uppercase;
       cursor: pointer;
@@ -598,7 +601,7 @@
 <!-- STARS LAYER -->
 <div class="stars-layer" aria-hidden="true"></div>
 
-<!-- PREMIUM COUNTDOWN SCREEN (STRICT LIVE LOCK MECHANISM) -->
+<!-- PREMIUM COUNTDOWN SCREEN (STRICT LOCK) -->
 <div class="countdown-screen" id="countdownScreen">
   <h2 class="cd-title">ADITYA RAI</h2>
   <p class="cd-subtitle">The Grand 18th Chapter Approaches</p>
@@ -610,9 +613,10 @@
     <div class="cd-box"><div class="cd-number" id="seconds">00</div><div class="cd-label">Secs</div></div>
   </div>
 
+  <!-- Locked Alert Message Div -->
   <div class="lock-notice" id="lockNotice"></div>
 
-  <!-- Strict Live Production Button -->
+  <!-- Strict Button -->
   <button class="cd-btn" id="enterCelebrationBtn" onclick="attemptCelebration()">
     🔒 Locked Until 23 July
   </button>
@@ -650,15 +654,15 @@
     <button class="qbtn-shuffle" onclick="shuffleQuote()" title="Shuffle quote" aria-label="Shuffle quote">⟳</button>
   </div>
 
-  <!-- CAKE (JAVASCRIPT INTERACTIVE ANIMATION INTERFACE) -->
-  <div class="cake-scene" id="cakeScene" onclick="executeCakeCutSequence()" role="button" tabindex="0"
-       aria-label="Tap to cut the cake" onkeydown="if(event.key==='Enter')executeCakeCutSequence()">
+  <!-- CAKE -->
+  <div class="cake-scene" id="cakeScene" onclick="cutCake()" role="button" tabindex="0"
+       aria-label="Tap to cut the cake" onkeydown="if(event.key==='Enter')cutCake()">
     <div class="cake-plate" aria-hidden="true"></div>
     <div class="cake-body" id="cakeBody" aria-hidden="true">
       <div class="candle-wrap" id="candleWrap">
         <div class="flame-group">
           <div class="flame-outer" id="flameOuter"></div>
-          <div class="flame-inner" id="flameInner"></div>
+          <div class="flame-inner"></div>
         </div>
         <div class="smoke" id="smokeEl"></div>
         <div class="candle-stick"></div>
@@ -698,8 +702,8 @@
 </div>
 
 <script>
-  /* ─── REAL ABSOLUTE LIVE TARGET DATE CONFIG ───────── */
-  // Production lock: 23 July 2026, 00:00:00 IST Raat ke exact 12 baje
+  /* ─── TARGET BIRTHDAY DATE CONFIG ─────────────────── */
+  // strict Target Date: 23 July 2026, 00:00:00 (Raat ke 12 baje)
   const targetDate = new Date("July 23, 2026 00:00:00").getTime();
   let countdownInterval;
   let isUnlocked = false;
@@ -709,15 +713,16 @@
     const difference = targetDate - now;
     const btn = document.getElementById('enterCelebrationBtn');
 
-    // Jab real clock 23 July hit karegi
+    // Jab time ho jaye (23 July 12:00 AM ya uske baad)
     if (difference <= 0) {
       clearInterval(countdownInterval);
       isUnlocked = true;
       
-      btn.classList.add('active-ready');
+      // Auto enter celebration logic ya button UI change
+      btn.classList.add('unlocked');
       btn.innerHTML = "Enter Celebration ✨";
       
-      // Strict auto-unlock execution cascade
+      // Automatic breakdown of countdown screen when time hits
       document.getElementById('countdownScreen').classList.add('hide');
       stopCountdownMusic();
       playMainMusic();
@@ -725,17 +730,20 @@
       return;
     }
 
+    // Calculations
     const d = Math.floor(difference / (1000 * 60 * 60 * 24));
     const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
     const s = Math.floor((difference % (1000 * 60)) / 1000);
 
+    // Display updates
     document.getElementById('days').textContent    = d < 10 ? '0' + d : d;
     document.getElementById('hours').textContent   = h < 10 ? '0' + h : h;
     document.getElementById('minutes').textContent = m < 10 ? '0' + m : m;
     document.getElementById('seconds').textContent = s < 10 ? '0' + s : s;
   }
 
+  // Countdown Music Helpers
   function playCountdownMusic() {
     document.getElementById('countdownMusic').play().catch(() => {});
   }
@@ -748,19 +756,23 @@
     document.getElementById('bgMusic').play().catch(() => {});
   }
 
-  // Strict Security Verification Check
+  // Strict Lock Check Mechanism on Button Click
   function attemptCelebration() {
     const notice = document.getElementById('lockNotice');
     
-    // Live validation loop
     if (!isUnlocked) {
-      notice.textContent = "Sabr karo khote! Celebration 23 July ko hi shuru hoga! 🔐";
+      // Locked Alert Effect
+      notice.textContent = "Sabr karo chhote! Celebration 23 July ko hi shuru hoga! 🔐";
       notice.classList.add('show');
-      setTimeout(() => { notice.classList.remove('show'); }, 2500);
+      
+      // Remove shake animation class after completion to restart it on next click
+      setTimeout(() => {
+        notice.classList.remove('show');
+      }, 2500);
       return;
     }
 
-    // Is block par tabhi aayega jab execution unlock verified hoga
+    // Agar unlocked hai tabhi andar jaane milega
     document.getElementById('countdownScreen').classList.add('hide');
     stopCountdownMusic();
     playMainMusic();
@@ -770,19 +782,12 @@
     setTimeout(burstSides, 700);
   }
 
-  function transformToActiveState() {
-    isUnlocked = true;
-    const btn = document.getElementById('enterCelebrationBtn');
-    btn.classList.add('active-ready');
-    btn.innerHTML = "Enter Celebration ✨";
-  }
-
   function triggerEntranceConfetti() {
     confetti({ particleCount: 140, spread: 85, origin: { y: .55 },
       colors: ['#b38f4d','#f3cf7a','#faefc2','#fff'] });
   }
 
-  /* ─── QUOTE HANDLERS ────────────────────────────────── */
+  /* ─── QUOTE DATA ────────────────────────────────────── */
   const quotes = [
     {
       hindi: "तुम भले ही मेरे छोटे भाई हो, लेकिन कई मायने में तुम मुझे प्रेरणा देते हो। तुम्हारे जन्मदिन पर, मैं तुम्हें दुनिया की सारी सफलता की कामना करता हूँ। चमकते रहो और हमें गर्वित करते रहो। जन्मदिन मुबारक हो, भाई।",
@@ -838,7 +843,7 @@
     renderQuote(next, true);
   }
 
-  /* ─── JS CONFETTI ENGINES ──────────────────────────── */
+  /* ─── CONFETTI HELPERS ──────────────────────────────── */
   function burstCenter() {
     confetti({ particleCount: 160, spread: 95, origin: { y: .6 },
       colors: ['#b38f4d','#f3cf7a','#faefc2','#ffffff','#e74c3c'] });
@@ -854,43 +859,34 @@
       colors: ['#f3cf7a','#ffffff'] });
   }
 
-  /* ─── ADVANCED INTERACTIVE JAVASCRIPT CAKE ANIMATION ─── */
+  /* ─── CAKE INTERACTION ──────────────────────────────── */
   let cutDone = false;
 
-  function executeCakeCutSequence() {
+  function cutCake() {
     if (cutDone) return;
     cutDone = true;
 
-    // 1. Structural Candle-Flame Visual Disabling Loop
     document.getElementById('flameOuter').classList.add('hidden');
-    document.getElementById('flameInner').classList.add('hidden');
-    
-    // 2. Physics Smoke Element Instantiation
+    document.querySelector('.flame-inner').classList.add('hidden');
     const smoke = document.getElementById('smokeEl');
     smoke.classList.add('puffing');
 
-    // 3. JavaScript Polygonal Clip-Path 3D Layer Splitting
     setTimeout(() => {
       document.getElementById('cakeBody').classList.add('cut');
     }, 200);
 
-    // 4. UI Text Buffer Re-rendering
-    const hint = document.getElementById('cakeHint');
-    hint.textContent = '🎉 Cake cut! Enjoy adulthood, Brother!';
-    hint.style.animation = 'none';
-    hint.style.opacity = '1';
+    document.getElementById('cakeHint').textContent = '🎉 Cake cut! Enjoy adulthood, Brother!';
+    document.getElementById('cakeHint').style.animation = 'none';
+    document.getElementById('cakeHint').style.opacity = '1';
 
-    // 5. Native Media Context Track Audio Playback Execution
     playMainMusic();
 
-    // 6. Chronological Micro-Confetti Explosive Cascade
     burstCenter();
     setTimeout(burstCenter,  320);
     setTimeout(burstSides,   450);
     setTimeout(burstSmall,   700);
     setTimeout(burstCenter, 1000);
 
-    // 7. Context Trigger Modal Invocation Boundary
     setTimeout(() => {
       document.getElementById('partyModal').classList.add('open');
     }, 1500);
@@ -902,15 +898,16 @@
     setTimeout(burstSides, 500);
   }
 
-  /* ─── INITIALIZATION INITIALIZER ─────────────────────── */
+  /* ─── INIT ──────────────────────────────────────────── */
   window.addEventListener('DOMContentLoaded', () => {
     renderQuote(0, false);
     
-    // Server Execution Instantiation
+    // Time check instantly
     updateCountdown();
+    // Countdown refresh loop
     countdownInterval = setInterval(updateCountdown, 1000);
 
-    // User Event Handling Proxy for Audio Context Management
+    // Audio play control on click
     document.body.addEventListener('click', function startMusicOnInteraction() {
       if(!document.getElementById('countdownScreen').classList.contains('hide')) {
         playCountdownMusic();
